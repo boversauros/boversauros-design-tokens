@@ -60,8 +60,15 @@ jobs:
           key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" > ~/.config/rclone/rclone.conf
 
-      - name: Upload to R2
+      - name: Test R2 Connection
         run: |
-          VERSION=${{ steps.check.outputs.version }}
-          rclone sync ./dist r2:boversauros-tokens/$VERSION
-          rclone sync ./dist r2:boversauros-tokens/latest
+          echo "Testing R2 connection..."
+          rclone lsd r2:
+          echo "Listing boversauros-tokens bucket..."
+          rclone lsd r2:boversauros-tokens || echo "Failed to list bucket"
+
+      # - name: Upload to R2
+      #   run: |
+      #     VERSION=${{ steps.check.outputs.version }}
+      #     rclone sync ./dist r2:boversauros-tokens/$VERSION
+      #     rclone sync ./dist r2:boversauros-tokens/latest
