@@ -18,19 +18,37 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-      # not dependencies but in case we have them. 
-      #- name: Install dependencies
-       # run: npm ci
+      
+      # Not need it here as we do not have dependencies
+      # - name: Install dependencies
+      #   run: npm ci
 
       - name: Build
         run: npm run build
 
+      - name: Check version
+        id: check
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm view $PACKAGE_NAME version || echo "0.0.0")
+          if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
+            echo "New version detected: $CURRENT_VERSION"
+            echo "::set-output name=new_version::true"
+            echo "::set-output name=version::$CURRENT_VERSION"
+          else
+            echo "Version unchanged: $CURRENT_VERSION"
+            echo "::set-output name=new_version::false"
+          fi
+
       - name: Publish to npm
+        if: steps.check.outputs.new_version == 'true'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install rclone
+        if: steps.check.outputs.new_version == 'true'
         run: sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
       - name: Configure rclone
@@ -45,6 +63,6 @@ jobs:
 
       - name: Upload to R2
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=${{ steps.check.outputs.version }}
           rclone sync ./dist r2:boversauros-tokens/$VERSION
           rclone sync ./dist r2:boversauros-tokens/latest
