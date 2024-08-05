@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-publish:
+  build-publish-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,9 +17,9 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-
-      - name: Install dependencies
-        run: npm ci
+      # not dependencies but in case we have them. 
+      #- name: Install dependencies
+       # run: npm ci
 
       - name: Build
         run: npm run build
@@ -38,12 +38,12 @@ jobs:
           echo "[r2]
           type = s3
           provider = Cloudflare
-          access_key_id = ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          account = ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           secret_access_key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" > ~/.config/rclone/rclone.conf
 
       - name: Upload to R2
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          rclone sync ./dist r2:your-bucket-name/$VERSION
-          rclone sync ./dist r2:your-bucket-name/latest
+          rclone sync ./dist r2:boversauros-tokens/$VERSION
+          rclone sync ./dist r2:boversauros-tokens/latest
