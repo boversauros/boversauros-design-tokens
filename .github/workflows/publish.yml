@@ -40,7 +40,7 @@ jobs:
           type = s3
           provider = Cloudflare
           account = ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          secret_access_key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" > ~/.config/rclone/rclone.conf
 
       - name: Upload to R2
