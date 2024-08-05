@@ -48,7 +48,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install rclone
-        if: steps.check.outputs.new_version == 'true'
         run: sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
       - name: Configure rclone
