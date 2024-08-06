@@ -56,9 +56,11 @@ jobs:
           echo "[r2]
           type = s3
           provider = Cloudflare
-          account = ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com" > ~/.config/rclone/rclone.conf
+          access_key_id = ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          acl = private
+          no_check_bucket = true" > ~/.config/rclone/rclone.conf
 
       - name: Test R2 Connection
         run: |
