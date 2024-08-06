@@ -74,17 +74,17 @@ jobs:
           rclone --version
           
           echo "Listing all buckets:"
-          rclone lsf r2: --verbose --dump headers --dump bodies --log-level DEBUG
+          rclone lsf r2: --dump headers --dump bodies --log-level DEBUG
           
           echo "Checking if specific bucket exists:"
-          rclone size r2:boversauros-tokens --verbose --dump headers --dump bodies --log-level DEBUG
+          rclone size r2:boversauros-tokens --dump headers --dump bodies --log-level DEBUG
           
           echo "Attempting to list bucket contents:"
-          rclone ls r2:boversauros-tokens --verbose --dump headers --dump bodies --log-level DEBUG
+          rclone ls r2:boversauros-tokens --dump headers --dump bodies --log-level DEBUG
           
           echo "Attempting to upload a test file:"
           echo "test content" > test.txt
-          rclone copy test.txt r2:boversauros-tokens/test.txt --verbose --dump headers --dump bodies --log-level DEBUG
+          rclone copy test.txt r2:boversauros-tokens/test.txt --dump headers --dump bodies --log-level DEBUG
 
       # - name: Upload to R2
       #   run: |
