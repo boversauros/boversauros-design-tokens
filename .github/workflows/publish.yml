@@ -51,40 +51,39 @@ jobs:
         run: sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
       - name: Configure rclone
+        env:
+          R2_REGION: ${{ secrets.R2_REGION }}
         run: |
           mkdir -p ~/.config/rclone
-          echo "[r2]
+          cat << EOF > ~/.config/rclone/rclone.conf
+          [r2]
           type = s3
           provider = Cloudflare
           access_key_id = ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
           secret_access_key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
           endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           acl = private
-          no_check_bucket = true" > ~/.config/rclone/rclone.conf
+          region = ${R2_REGION}
+          location_constraint = ${R2_REGION}
+          EOF
 
-      - name: Debug rclone setup
+      - name: Verify rclone config
         run: |
-            rclone --version
-            echo "rclone configuration:"
-            sed 's/access_key_id = .*/access_key_id = REDACTED/' ~/.config/rclone/rclone.conf | sed 's/secret_access_key = .*/secret_access_key = REDACTED/'
+          echo "rclone config file contents:"
+          cat ~/.config/rclone/rclone.conf | sed 's/access_key_id =.*/access_key_id = REDACTED/' | sed 's/secret_access_key =.*/secret_access_key = REDACTED/'
+          echo "Waiting for 10 seconds to ensure config is processed..."
+          sleep 10
 
       - name: Debug R2 Connection
         run: |
           echo "Rclone version:"
           rclone --version
           
+          echo "Rclone config show:"
+          rclone config show r2 | sed 's/access_key_id =.*/access_key_id = REDACTED/' | sed 's/secret_access_key =.*/secret_access_key = REDACTED/'
+          
           echo "Listing all buckets:"
           rclone lsf r2: --dump headers --dump bodies --log-level DEBUG
-          
-          echo "Checking if specific bucket exists:"
-          rclone size r2:boversauros-tokens --dump headers --dump bodies --log-level DEBUG
-          
-          echo "Attempting to list bucket contents:"
-          rclone ls r2:boversauros-tokens --dump headers --dump bodies --log-level DEBUG
-          
-          echo "Attempting to upload a test file:"
-          echo "test content" > test.txt
-          rclone copy test.txt r2:boversauros-tokens/test.txt --dump headers --dump bodies --log-level DEBUG
 
       # - name: Upload to R2
       #   run: |
