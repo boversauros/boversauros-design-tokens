@@ -47,46 +47,24 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Install rclone
-        run: sudo -v ; curl https://rclone.org/install.sh | sudo bash
-
-      - name: Configure rclone
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          aws-region: auto
+  
+      - name: Deploy to R2
+        if: steps.check.outputs.version_changed == 'true'
         env:
-          R2_REGION: ${{ secrets.R2_REGION }}
+          R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET_NAME: boversauros-tokens
         run: |
-          mkdir -p ~/.config/rclone
-          cat << EOF > ~/.config/rclone/rclone.conf
-          [r2]
-          type = s3
-          provider = Cloudflare
-          access_key_id = ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
-          secret_access_key = ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
-          endpoint = https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
-          acl = private
-          region = ${R2_REGION}
-          location_constraint = ${R2_REGION}
-          EOF
+          echo "Uploading build files to R2..."
+          aws s3 sync ./dist s3://$BUCKET_NAME/${{ steps.check.outputs.new_version }} --endpoint-url $R2_ENDPOINT
+          aws s3 sync ./dist s3://$BUCKET_NAME/latest --endpoint-url $R2_ENDPOINT
 
-      - name: Verify rclone config
-        run: |
-          echo "rclone config file contents:"
-          cat ~/.config/rclone/rclone.conf | sed 's/access_key_id =.*/access_key_id = REDACTED/' | sed 's/secret_access_key =.*/secret_access_key = REDACTED/'
-          echo "Waiting for 10 seconds to ensure config is processed..."
-          sleep 10
-
-      - name: Debug R2 Connection
-        run: |
-          echo "Rclone version:"
-          rclone --version
+          echo "Listing uploaded files:"
+          aws s3 ls s3://$BUCKET_NAME/${{ steps.check.outputs.new_version }} --recursive --endpoint-url $R2_ENDPOINT
           
-          echo "Rclone config show:"
-          rclone config show r2 | sed 's/access_key_id =.*/access_key_id = REDACTED/' | sed 's/secret_access_key =.*/secret_access_key = REDACTED/'
-          
-          echo "Listing all buckets:"
-          rclone lsf r2: --dump headers --dump bodies --log-level DEBUG
-
-      # - name: Upload to R2
-      #   run: |
-      #     VERSION=${{ steps.check.outputs.version }}
-      #     rclone sync ./dist r2:boversauros-tokens/$VERSION
-      #     rclone sync ./dist r2:boversauros-tokens/latest
+          echo "Done!"
