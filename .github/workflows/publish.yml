@@ -68,8 +68,18 @@ jobs:
             echo "rclone configuration:"
             sed 's/access_key_id = .*/access_key_id = REDACTED/' ~/.config/rclone/rclone.conf | sed 's/secret_access_key = .*/secret_access_key = REDACTED/'
   
-      - name: Check if bucket exists
-        run: rclone lsf r2:boversauros-tokens
+      - name: Debug R2 Connection
+        run: |
+          echo "Checking if bucket exists:"
+          rclone lsf r2:boversauros-tokens
+          echo "Listing all buckets:"
+          rclone lsf r2:
+          echo "Attempting to list bucket contents:"
+          rclone ls r2:boversauros-tokens
+        env:
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_SECRET_ACCESS_KEY }}
+          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.coms
 
       # - name: Upload to R2
       #   run: |
