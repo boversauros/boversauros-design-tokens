@@ -50,6 +50,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Check if version exists in R2
+        env:
+          R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
         run: |
           if aws s3 ls "s3://$BUCKET_NAME/${{ steps.check.outputs.version }}/" --endpoint-url $R2_ENDPOINT | grep -q 'PRE'; then
             echo "version_exists=true" >> $GITHUB_OUTPUT
