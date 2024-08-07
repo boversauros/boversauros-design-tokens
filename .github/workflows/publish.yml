@@ -49,7 +49,17 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Check if version exists in R2
+        run: |
+          if aws s3 ls "s3://$BUCKET_NAME/${{ steps.check.outputs.version }}/" --endpoint-url $R2_ENDPOINT | grep -q 'PRE'; then
+            echo "version_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "version_exists=false" >> $GITHUB_OUTPUT
+          fi
+        id: version_check
+
       - name: Configure AWS CLI for R2
+        if: steps.version_check.outputs.version_exists == 'false'
         run: |
           mkdir -p ~/.aws
           echo "[default]
@@ -59,6 +69,7 @@ jobs:
           region = auto" > ~/.aws/config
   
       - name: Deploy to R2
+        if: steps.version_check.outputs.version_exists == 'false'
         env:
           R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           BUCKET_NAME: boversauros-tokens
@@ -77,6 +88,7 @@ jobs:
           echo "Done!"
   
       - name: Output R2 URLs
+        if: steps.version_check.outputs.version_exists == 'false'
         run: |
           echo "Your CSS files are now available at:"
           echo "Latest version: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com/$BUCKET_NAME/latest/your-css-file.css"
