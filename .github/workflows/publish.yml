@@ -31,14 +31,16 @@ jobs:
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          PUBLISHED_VERSION=$(npm view $PACKAGE_NAME version || echo "0.0.0")
+          PUBLISHED_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "0.0.0")
+          echo "Current version: $CURRENT_VERSION"
+          echo "Published version: $PUBLISHED_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
             echo "New version detected: $CURRENT_VERSION"
-            echo "::set-output name=new_version::true"
-            echo "::set-output name=version::$CURRENT_VERSION"
+            echo "new_version=true" >> $GITHUB_OUTPUT
           else
             echo "Version unchanged: $CURRENT_VERSION"
-            echo "::set-output name=new_version::false"
+            echo "new_version=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Publish to npm
@@ -61,11 +63,22 @@ jobs:
           R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
           BUCKET_NAME: boversauros-tokens
         run: |
+          echo "Current version: ${{ steps.check.outputs.version }}"
           echo "Uploading build files to R2..."
           aws s3 sync ./dist s3://$BUCKET_NAME/${{ steps.check.outputs.version }} --endpoint-url $R2_ENDPOINT
           aws s3 sync ./dist s3://$BUCKET_NAME/latest --endpoint-url $R2_ENDPOINT
           
-          echo "Listing uploaded files:"
+          echo "Listing uploaded files in version-specific folder:"
           aws s3 ls s3://$BUCKET_NAME/${{ steps.check.outputs.version }} --recursive --endpoint-url $R2_ENDPOINT
           
+          echo "Listing uploaded files in latest folder:"
+          aws s3 ls s3://$BUCKET_NAME/latest --recursive --endpoint-url $R2_ENDPOINT
+          
           echo "Done!"
+  
+      - name: Output R2 URLs
+        run: |
+          echo "Your CSS files are now available at:"
+          echo "Latest version: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com/$BUCKET_NAME/latest/your-css-file.css"
+          echo "Specific version: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com/$BUCKET_NAME/${{ steps.check.outputs.version }}/your-css-file.css"
+          echo "Replace 'your-css-file.css' with the actual name of your CSS file."
