@@ -19,7 +19,7 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
       
-      # Not need it here as we do not have dependencies
+      # Not need it here as I do not have dependencies
       # - name: Install dependencies
       #   run: npm ci
 
