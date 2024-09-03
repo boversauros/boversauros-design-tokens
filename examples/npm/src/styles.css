@@ -1,4 +1,4 @@
-@import "boversauros-design-tokens/dist/css/light/tokens.css";
+@import "boversauros-design-tokens/dist/css/dark/tokens.css";
 
 body {
   font-family: var(--font-family-base);
