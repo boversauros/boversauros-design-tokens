@@ -19,7 +19,7 @@ async function copyDir(src, dest) {
 
 async function build() {
   try {
-    await copyDir("src/css", "dist/css");
+    await copyDir("src/", "dist/");
     console.log("Build completed successfully!");
   } catch (err) {
     console.error("Build failed:", err);

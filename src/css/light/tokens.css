@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "roboto";
+  src: url("./fonts/Roboto-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Colors */
   --primary-color: #00bcd4;
@@ -12,7 +19,7 @@
   --border-color: #e0e0e0;
 
   /* Typography */
-  --font-family-base: "Helvetica", sans-serif;
+  --font-family-base: "roboto", sans-serif;
   --font-size-base: 16px;
   --font-size-lg: 1.25rem;
   --font-size-sm: 0.875rem;

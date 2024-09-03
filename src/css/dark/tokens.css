@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "BaskervvilleSC";
+  src: url("./fonts/BaskervvilleSC-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Colors */
   --primary-color: #00e5ff;
@@ -12,7 +19,7 @@
   --border-color: #333333;
 
   /* Typography */
-  --font-family-base: "Helvetica", sans-serif;
+  --font-family-base: "BaskervvilleSC", sans-serif;
   --font-size-base: 16px;
   --font-size-lg: 1.25rem;
   --font-size-sm: 0.875rem;
