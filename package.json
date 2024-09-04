@@ -1,6 +1,6 @@
 {
   "name": "boversauros-design-tokens",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The Boversauros Design System",
   "main": "scripts/build.js",
   "type": "module",
@@ -18,5 +18,9 @@
     "CI/CD"
   ],
   "author": "Oriol Bover Vila",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boversauros/boversauros-design-tokens"
+  }
 }
