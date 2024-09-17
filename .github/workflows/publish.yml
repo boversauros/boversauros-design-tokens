@@ -51,12 +51,10 @@ jobs:
 
       - name: Configure AWS CLI for R2
         run: |
-          mkdir -p ~/.aws
-          echo "[default]
-          aws_access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
-          aws_secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}" > ~/.aws/credentials
-          echo "[default]
-          region = auto" > ~/.aws/config
+          sed -i 's/aws_access_key_id = .*/aws_access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}/g' .aws/credentials
+          sed -i 's/aws_secret_access_key = .*/aws_secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}/g' .aws/credentials
+          cp .aws/credentials ~/.aws/credentials
+          cp .aws/config ~/.aws/config
   
       - name: Deploy to R2
         env:
